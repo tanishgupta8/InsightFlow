@@ -1,9 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { motion, AnimatePresence } from 'framer-motion';
+
+const pageVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.5, staggerChildren: 0.1 } },
+  exit: { opacity: 0, y: -20 }
+};
+
+const itemVariants = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 }
+};
 
 const UploadPage = () => {
   const [file, setFile] = useState(null);
   const [email, setEmail] = useState('');
+  const [customInsight, setCustomInsight] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -37,6 +50,7 @@ const UploadPage = () => {
     setFile(null);
     setResult(null);
     setStatus('');
+    setCustomInsight('');
     if (!user) setEmail('');
   };
 
@@ -50,6 +64,9 @@ const UploadPage = () => {
     formData.append("file", file);
     if (email) {
       formData.append("email", email);
+    }
+    if (customInsight) {
+      formData.append("customInsight", customInsight);
     }
 
     try {
@@ -85,12 +102,22 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="page-container" style={{ maxWidth: '800px' }}>
-      <h1 className="mb-2">New Analysis</h1>
-      <p className="mb-8" style={{ color: 'var(--text-secondary)' }}>Upload your spreadsheet to generate instant insights.</p>
+    <motion.div 
+      className="page-container" 
+      style={{ maxWidth: '800px' }}
+      variants={pageVariants}
+      initial="initial"
+      animate="animate"
+      exit="exit"
+    >
+      <motion.h1 variants={itemVariants} className="mb-2">New Analysis</motion.h1>
+      <motion.p variants={itemVariants} className="mb-8" style={{ color: 'var(--text-secondary)' }}>Upload your spreadsheet to generate instant insights.</motion.p>
 
       {/* Dropzone */}
-      <div 
+      <motion.div 
+        variants={itemVariants}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
         className="dropzone-container mb-6"
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
@@ -114,10 +141,10 @@ const UploadPage = () => {
           accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
           onChange={handleFileChange}
         />
-      </div>
+      </motion.div>
 
       {/* Email Field — shown for both guest and logged-in users */}
-      <div className="form-group mb-6">
+      <motion.div variants={itemVariants} className="form-group mb-6">
         <label>{user ? 'Email Address' : 'Email Address (Guest mode)'}</label>
         <input 
           type="email" 
@@ -126,43 +153,77 @@ const UploadPage = () => {
           onChange={(e) => setEmail(e.target.value)}
         />
         {user && <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'block' }}>Pre-filled from your account. You can change it.</span>}
-      </div>
+      </motion.div>
+
+      {/* Custom Insight Field */}
+      <motion.div variants={itemVariants} className="form-group mb-6">
+        <label>Custom Insight (Optional)</label>
+        <textarea 
+          placeholder="e.g., What is the best performing product? Are there any seasonal trends?" 
+          value={customInsight}
+          onChange={(e) => setCustomInsight(e.target.value)}
+          rows={3}
+          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)', resize: 'vertical' }}
+        />
+      </motion.div>
 
       {/* Status Messages */}
-      {status && !loading && (
-        <div className="mb-4" style={{ 
-          color: status.includes('valid') || status.includes('failed') || status.includes('Failed') ? 'var(--error)' : 'var(--text-secondary)'
-        }}>
-          {status}
-        </div>
-      )}
+      <AnimatePresence>
+        {status && !loading && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-4" style={{ 
+            color: status.includes('valid') || status.includes('failed') || status.includes('Failed') ? 'var(--error)' : 'var(--text-secondary)'
+          }}>
+            {status}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Loading State */}
-      {loading && (
-        <div className="loading-container mb-6">
-          <div className="loading-spinner"></div>
-          <div className="loading-text">
-            <span style={{ fontWeight: '500' }}>Analyzing your dataset...</span>
-            <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>This may take a moment as AI processes your data.</span>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="loading-container mb-6"
+          >
+            <div className="loading-spinner"></div>
+            <div className="loading-text">
+              <span style={{ fontWeight: '500' }}>Analyzing your dataset...</span>
+              <span style={{ fontSize: '0.8125rem', color: 'var(--text-muted)' }}>This may take a moment as AI processes your data.</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Generate Button */}
-      {!result && (
-        <button 
-          className="btn-primary" 
-          style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
-          onClick={handleSubmit}
-          disabled={loading || !file}
-        >
-          {loading ? 'Processing...' : 'Generate Insights'}
-        </button>
-      )}
+      <AnimatePresence>
+        {!result && (
+          <motion.button 
+            variants={itemVariants}
+            exit={{ opacity: 0 }}
+            className="btn-primary" 
+            style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
+            onClick={handleSubmit}
+            disabled={loading || !file}
+          >
+            {loading ? 'Processing...' : 'Generate Insights'}
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Results Section */}
-      {result && (
-        <div className="result-section">
+      <AnimatePresence>
+        {result && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="result-section"
+          >
           {/* Status Badges */}
           <div className="result-badges mb-6">
             {result.emailSent && (
@@ -209,9 +270,10 @@ const UploadPage = () => {
           >
             Start New Analysis
           </button>
-        </div>
-      )}
-    </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

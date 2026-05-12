@@ -38,6 +38,7 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -137,7 +138,7 @@ button, .btn-primary, .btn-secondary {
   font-size: 0.875rem;
   font-weight: 500;
   border-radius: 6px; 
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid transparent;
 }
 
@@ -145,21 +146,37 @@ button, .btn-primary, .btn-secondary {
   background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
   color: #fff;
   border: 1px solid rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+.btn-primary:hover::before {
+  left: 100%;
 }
 .btn-primary:hover {
   background: linear-gradient(135deg, #9333ea, #a855f7);
   box-shadow: var(--shadow-glow);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .btn-secondary {
   background-color: rgba(255,255,255,0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
 }
 .btn-secondary:hover {
   background-color: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.2);
+  border-color: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
 }
 
 /* Page Containers */
@@ -185,6 +202,51 @@ button, .btn-primary, .btn-secondary {
   -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 100%);
   pointer-events: none;
   z-index: -1;
+  animation: gridMove 20s linear infinite;
+}
+
+@keyframes gridMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(40px); }
+}
+
+/* Animated Glowing Orbs */
+.bg-orbs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: -2;
+  pointer-events: none;
+}
+.orb-1, .orb-2 {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  animation: float 10s ease-in-out infinite alternate;
+}
+.orb-1 {
+  width: 300px;
+  height: 300px;
+  background: var(--accent-primary);
+  top: -100px;
+  left: 10%;
+}
+.orb-2 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-secondary);
+  bottom: -100px;
+  right: 10%;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 50px) scale(1.1); }
 }
 
 /* Auth Cards */
@@ -198,13 +260,15 @@ button, .btn-primary, .btn-secondary {
 }
 
 .auth-card {
-  background: var(--bg-secondary);
+  background: rgba(10, 10, 11, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
   padding: 2.5rem;
   border-radius: var(--radius-lg);
   width: 100%;
   max-width: 380px;
-  box-shadow: var(--shadow-xl);
+  box-shadow: var(--shadow-xl), inset 0 0 0 1px rgba(255,255,255,0.05);
   position: relative;
   overflow: hidden;
 }
@@ -342,13 +406,16 @@ button, .btn-primary, .btn-secondary {
 }
 
 .card {
-  background: var(--bg-secondary);
+  background: rgba(10, 10, 11, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 1.5rem;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
 }
 
 .card::before {
@@ -358,14 +425,15 @@ button, .btn-primary, .btn-secondary {
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
 .card:hover {
-  border-color: rgba(255,255,255,0.15);
-  box-shadow: var(--shadow-glow);
+  border-color: rgba(255,255,255,0.2);
+  box-shadow: var(--shadow-glow), inset 0 0 0 1px rgba(255,255,255,0.05);
+  transform: translateY(-4px);
 }
 
 .card:hover::before {
