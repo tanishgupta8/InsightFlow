@@ -110,8 +110,8 @@ const UploadPage = () => {
       animate="animate"
       exit="exit"
     >
-      <motion.h1 variants={itemVariants} className="mb-2">New Analysis</motion.h1>
-      <motion.p variants={itemVariants} className="mb-8" style={{ color: 'var(--text-secondary)' }}>Upload your spreadsheet to generate instant insights.</motion.p>
+      <motion.h1 variants={itemVariants} className="mb-2" style={{ fontSize: '3rem', color: 'var(--accent-primary)' }}>NEW ANALYSIS</motion.h1>
+      <motion.p variants={itemVariants} className="mb-8" style={{ color: 'var(--text-secondary)', fontSize: '1.25rem' }}>UPLOAD DATASET. EXTRACT METRICS.</motion.p>
 
       {/* Dropzone */}
       <motion.div 
@@ -145,7 +145,7 @@ const UploadPage = () => {
 
       {/* Email Field — shown for both guest and logged-in users */}
       <motion.div variants={itemVariants} className="form-group mb-6">
-        <label>{user ? 'Email Address' : 'Email Address (Guest mode)'}</label>
+        <label>{user ? 'EMAIL TARGET' : 'EMAIL TARGET (GUEST)'}</label>
         <input 
           type="email" 
           placeholder="Where should we send the report?" 
@@ -157,13 +157,13 @@ const UploadPage = () => {
 
       {/* Custom Insight Field */}
       <motion.div variants={itemVariants} className="form-group mb-6">
-        <label>Custom Insight (Optional)</label>
+        <label>CUSTOM PARAMETERS (OPTIONAL)</label>
         <textarea 
-          placeholder="e.g., What is the best performing product? Are there any seasonal trends?" 
+          placeholder="ENTER SPECIFIC INQUIRIES. E.G., 'BEST PERFORMING PRODUCT?'" 
           value={customInsight}
           onChange={(e) => setCustomInsight(e.target.value)}
           rows={3}
-          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)', resize: 'vertical' }}
+          style={{ width: '100%', padding: '1rem', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-secondary)', color: 'var(--text-primary)', resize: 'vertical', borderRadius: '0' }}
         />
       </motion.div>
 
@@ -207,11 +207,11 @@ const UploadPage = () => {
             variants={itemVariants}
             exit={{ opacity: 0 }}
             className="btn-primary" 
-            style={{ width: '100%', padding: '1rem', fontSize: '1rem' }}
+            style={{ width: '100%', padding: '1.25rem', fontSize: '1.25rem' }}
             onClick={handleSubmit}
             disabled={loading || !file}
           >
-            {loading ? 'Processing...' : 'Generate Insights'}
+            {loading ? 'PROCESSING...' : 'INITIATE ANALYSIS'}
           </motion.button>
         )}
       </AnimatePresence>
