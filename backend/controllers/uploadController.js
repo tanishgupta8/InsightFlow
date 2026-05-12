@@ -14,12 +14,14 @@ exports.uploadFile = asyncHandler(async (req, res) => {
 
     const filePath = req.file.path;
     const email = req.body.email;
+    const customInsight = req.body.customInsight;
     const userId = req.user ? req.user._id : null;
     const isAuthenticated = !!req.user;
 
     console.log("📋 Upload received:", {
         fileName: req.file.originalname,
         email: email || "(none)",
+        customInsight: customInsight || "(none)",
         authenticated: isAuthenticated,
         bodyKeys: Object.keys(req.body),
     });
@@ -31,7 +33,7 @@ exports.uploadFile = asyncHandler(async (req, res) => {
         const data = XLSX.utils.sheet_to_json(sheet);
 
         // 2. Generate AI summary (always — no auth dependency)
-        const summaryText = await generateSummary(data);
+        const summaryText = await generateSummary(data, customInsight);
 
         // 3. Build the response object
         const response = {
