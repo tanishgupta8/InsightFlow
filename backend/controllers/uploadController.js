@@ -27,10 +27,18 @@ exports.uploadFile = asyncHandler(async (req, res) => {
     });
 
     try {
-        // 1. Parse the uploaded file (always — no auth dependency)
+        // 1. Parse the uploaded file (find first non-empty sheet)
         const workbook = XLSX.readFile(filePath);
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const data = XLSX.utils.sheet_to_json(sheet);
+        let data = [];
+        if (workbook.SheetNames && workbook.SheetNames.length > 0) {
+          for (const sName of workbook.SheetNames) {
+            const parsed = XLSX.utils.sheet_to_json(workbook.Sheets[sName]);
+            if (parsed && parsed.length > 0) {
+              data = parsed;
+              break;
+            }
+          }
+        }
 
         // 2. Generate AI summary (always — no auth dependency)
         const summaryText = await generateSummary(data, customInsight);

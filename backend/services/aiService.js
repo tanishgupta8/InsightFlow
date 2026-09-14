@@ -5,10 +5,43 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || 'gsk_dummy_fallback_key',
 });
 
+// Helper function to safely sample and sanitize dataset rows
+function prepareSampleData(data, maxChars = 6000) {
+  if (!Array.isArray(data) || data.length === 0) return [];
+
+  const sanitizedRows = [];
+  let currentLength = 0;
+
+  for (const row of data) {
+    if (typeof row !== "object" || row === null) continue;
+
+    // Truncate individual cell text if longer than 200 chars to avoid giant token blowups
+    const cleanRow = {};
+    for (const [key, val] of Object.entries(row)) {
+      if (typeof val === "string" && val.length > 200) {
+        cleanRow[key] = val.substring(0, 200) + "... [truncated]";
+      } else {
+        cleanRow[key] = val;
+      }
+    }
+
+    const rowStr = JSON.stringify(cleanRow);
+    if (currentLength + rowStr.length > maxChars && sanitizedRows.length > 0) {
+      break; // Stop adding rows once budget of ~6KB (~1,500 tokens) is reached
+    }
+
+    sanitizedRows.push(cleanRow);
+    currentLength += rowStr.length;
+
+    if (sanitizedRows.length >= 100) break; // Hard cap at 100 rows
+  }
+
+  return sanitizedRows;
+}
+
 async function generateSummary(data, customInsight) {
-  // Sample up to 100 rows to keep token count optimal and prevent Groq 429 rate limits
-  const sampleSize = Math.min(data.length, 100);
-  const sampleData = data.slice(0, sampleSize);
+  const sampleData = prepareSampleData(data, 6000);
+  const sampleSize = sampleData.length;
 
   let prompt = `
 You are a professional data analyst.
@@ -16,10 +49,10 @@ You are a professional data analyst.
 Analyze the following dataset.
 
 Dataset Metadata:
-- Total rows in the uploaded file: ${data.length}
-- Columns present: ${data.length > 0 ? Object.keys(data[0]).join(", ") : "None"}
+- Total rows in the uploaded file: ${Array.isArray(data) ? data.length : 0}
+- Columns present: ${Array.isArray(data) && data.length > 0 ? Object.keys(data[0]).join(", ") : "None"}
 
-Dataset content (showing sample of up to ${sampleSize} rows out of ${data.length} total):
+Dataset content (showing sample of up to ${sampleSize} rows out of ${Array.isArray(data) ? data.length : 0} total):
 ${JSON.stringify(sampleData)}
 
 Important rules:
